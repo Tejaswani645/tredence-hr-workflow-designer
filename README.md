@@ -173,8 +173,9 @@ npm run preview
 
 ---
 
-## 📝 Submission Details
+## 👩‍💻 Author & Overview
 
-1. **Repository**: Push all commits to your target GitHub repository.
-2. **Git Commit History**: Verified 13 clean, descriptive semantic commits following the implementation roadmap.
-3. **Contact / Author**: Tredence Case Study Submission.
+- **Developer**: Tejaswani
+- **Role**: Full Stack Engineer Assessment
+- **Company**: Tredence Analytics
+- **Repository**: [https://github.com/Tejaswani645/tredence-hr-workflow-designer](https://github.com/Tejaswani645/tredence-hr-workflow-designer)
