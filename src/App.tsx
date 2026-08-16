@@ -1,22 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { AppLayout } from './components/layout/AppLayout';
+import { NodeType, ValidationError } from './types/workflow';
 
 export default function App() {
+  const [workflowTitle, setWorkflowTitle] = useState('Employee Onboarding Workflow');
+  const [validationErrors] = useState<ValidationError[]>([]);
+
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-950 text-slate-100">
-      <header className="h-14 border-b border-slate-800 flex items-center px-6 bg-slate-900/50 justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center font-bold text-white shadow-md shadow-blue-500/20">
-            HR
-          </div>
-          <div>
-            <h1 className="text-sm font-bold tracking-tight text-white">HR Workflow Designer</h1>
-            <p className="text-xs text-slate-400">Enterprise Automation Engine</p>
-          </div>
-        </div>
-      </header>
-      <main className="flex-1 flex items-center justify-center">
-        <p className="text-slate-400 text-sm">Initializing Workflow Canvas...</p>
-      </main>
-    </div>
+    <AppLayout
+      workflowTitle={workflowTitle}
+      onTitleChange={setWorkflowTitle}
+      canUndo={false}
+      canRedo={false}
+      onUndo={() => {}}
+      onRedo={() => {}}
+      onAutoLayout={() => {}}
+      onOpenTemplates={() => {}}
+      onOpenValidation={() => {}}
+      onOpenSimulation={() => {}}
+      onOpenExportImport={() => {}}
+      onClearCanvas={() => {}}
+      validationErrors={validationErrors}
+      onAddNode={(type: NodeType) => {
+        console.log('Add node:', type);
+      }}
+      isInspectorOpen={false}
+    >
+      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
+        Canvas Workspace Ready
+      </div>
+    </AppLayout>
   );
 }
