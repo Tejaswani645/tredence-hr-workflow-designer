@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppLayout } from './components/layout/AppLayout';
 import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
+import { NodeInspector } from './components/inspector/NodeInspector';
 import { workflowNodeTypes } from './components/nodes';
 import { useWorkflowStore } from './hooks/useWorkflowStore';
 import { NodeType, ValidationError } from './types/workflow';
@@ -10,6 +11,7 @@ export default function App() {
     nodes,
     edges,
     selectedNodeId,
+    selectedNode,
     workflowTitle,
     setWorkflowTitle,
     activeSimNodeId,
@@ -19,6 +21,9 @@ export default function App() {
     onEdgesChange,
     onConnect,
     addNode,
+    updateNodeData,
+    deleteNode,
+    duplicateNode,
     clearCanvas,
     undo,
     redo,
@@ -44,7 +49,16 @@ export default function App() {
       onClearCanvas={clearCanvas}
       validationErrors={validationErrors}
       onAddNode={(type: NodeType) => addNode(type)}
-      isInspectorOpen={false}
+      isInspectorOpen={Boolean(selectedNode)}
+      inspectorPanel={
+        <NodeInspector
+          node={selectedNode}
+          onUpdate={updateNodeData}
+          onClose={() => setSelectedNodeId(null)}
+          onDuplicate={duplicateNode}
+          onDelete={deleteNode}
+        />
+      }
     >
       <WorkflowCanvas
         nodes={nodes}
