@@ -24,8 +24,8 @@ import {
 import { StartNodeForm } from './forms/StartNodeForm';
 import { TaskNodeForm } from './forms/TaskNodeForm';
 import { ApprovalNodeForm } from './forms/ApprovalNodeForm';
-import { AutomatedConfigForm } from './forms/AutomatedConfigForm';
-import { EndConfigForm } from './forms/EndConfigForm';
+import { AutomatedStepNodeForm } from './forms/AutomatedStepNodeForm';
+import { EndNodeForm } from './forms/EndNodeForm';
 
 interface NodeInspectorProps {
   node: AppNode | null;
@@ -183,13 +183,13 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
               />
             )}
             {nodeType === 'automated' && (
-              <AutomatedConfigForm
+              <AutomatedStepNodeForm
                 data={node.data as AutomatedNodeData}
                 onChange={handleDataChange}
               />
             )}
             {nodeType === 'end' && (
-              <EndConfigForm
+              <EndNodeForm
                 data={node.data as EndNodeData}
                 onChange={handleDataChange}
               />
