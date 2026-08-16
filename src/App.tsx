@@ -3,6 +3,7 @@ import { AppLayout } from './components/layout/AppLayout';
 import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
 import { NodeInspector } from './components/inspector/NodeInspector';
 import { ValidationModal } from './components/validation/ValidationModal';
+import { SandboxModal } from './components/sandbox/SandboxModal';
 import { workflowNodeTypes } from './components/nodes';
 import { useWorkflowStore } from './hooks/useWorkflowStore';
 import { validateWorkflowGraph } from './utils/graphValidation';
@@ -18,6 +19,8 @@ export default function App() {
     setWorkflowTitle,
     activeSimNodeId,
     traversedEdgeIds,
+    setActiveSimNodeId,
+    setTraversedEdgeIds,
     setSelectedNodeId,
     onNodesChange,
     onEdgesChange,
@@ -34,6 +37,7 @@ export default function App() {
   } = useWorkflowStore();
 
   const [isValidationOpen, setIsValidationOpen] = useState(false);
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
 
   // Compute live validation report
   const validationReport = useMemo(() => {
@@ -67,12 +71,13 @@ export default function App() {
       onAutoLayout={() => {}}
       onOpenTemplates={() => {}}
       onOpenValidation={() => setIsValidationOpen(true)}
-      onOpenSimulation={() => {}}
+      onOpenSimulation={() => setIsSandboxOpen(true)}
       onOpenExportImport={() => {}}
       onClearCanvas={clearCanvas}
       validationErrors={validationReport.errors}
       onAddNode={(type: NodeType) => addNode(type)}
       isInspectorOpen={Boolean(selectedNode)}
+      isSimulating={isSandboxOpen || Boolean(activeSimNodeId)}
       inspectorPanel={
         <NodeInspector
           node={selectedNode}
@@ -107,6 +112,22 @@ export default function App() {
           setSelectedNodeId(id);
           setIsValidationOpen(false);
         }}
+      />
+
+      {/* Workflow Sandbox Modal */}
+      <SandboxModal
+        isOpen={isSandboxOpen}
+        onClose={() => {
+          setIsSandboxOpen(false);
+          setActiveSimNodeId(null);
+          setTraversedEdgeIds([]);
+        }}
+        nodes={nodes}
+        edges={edges}
+        workflowTitle={workflowTitle}
+        validationErrors={validationReport.errors}
+        onHighlightNode={setActiveSimNodeId}
+        onHighlightEdges={setTraversedEdgeIds}
       />
     </AppLayout>
   );
