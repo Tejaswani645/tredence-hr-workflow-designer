@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AutomatedNodeData, AutomationAction } from '../../../types/workflow';
-import { getAutomations, MOCK_AUTOMATION_ACTIONS } from '../../../services/mockApi';
+import { fetchAutomations, MOCK_AUTOMATIONS } from '../../../services/api';
 import { Zap, Bot, Info, CheckCircle2, AlertCircle, RefreshCw } from 'lucide-react';
 
 interface AutomatedStepNodeFormProps {
@@ -9,14 +9,14 @@ interface AutomatedStepNodeFormProps {
 }
 
 export const AutomatedStepNodeForm: React.FC<AutomatedStepNodeFormProps> = ({ data, onChange }) => {
-  const [actions, setActions] = useState<AutomationAction[]>(MOCK_AUTOMATION_ACTIONS);
+  const [actions, setActions] = useState<AutomationAction[]>(MOCK_AUTOMATIONS);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
     setIsLoading(true);
-    getAutomations()
-      .then((res) => {
+    fetchAutomations()
+      .then((res: AutomationAction[]) => {
         if (isMounted) {
           setActions(res);
           setIsLoading(false);
