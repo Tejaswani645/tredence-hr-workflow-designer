@@ -1,6 +1,7 @@
 import React from 'react';
 import { AppLayout } from './components/layout/AppLayout';
 import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
+import { workflowNodeTypes } from './components/nodes';
 import { useWorkflowStore } from './hooks/useWorkflowStore';
 import { NodeType, ValidationError } from './types/workflow';
 
@@ -48,6 +49,7 @@ export default function App() {
       <WorkflowCanvas
         nodes={nodes}
         edges={edges}
+        nodeTypes={workflowNodeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
