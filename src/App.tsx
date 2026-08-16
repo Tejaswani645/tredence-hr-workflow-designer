@@ -1,13 +1,16 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AppLayout } from './components/layout/AppLayout';
 import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
 import { NodeInspector } from './components/inspector/NodeInspector';
 import { ValidationModal } from './components/validation/ValidationModal';
 import { SandboxModal } from './components/sandbox/SandboxModal';
+import { TemplatesModal } from './components/templates/TemplatesModal';
+import { ExportImportModal } from './components/export/ExportImportModal';
 import { workflowNodeTypes } from './components/nodes';
 import { useWorkflowStore } from './hooks/useWorkflowStore';
 import { validateWorkflowGraph } from './utils/graphValidation';
-import { NodeType, AppNode } from './types/workflow';
+import { getLayoutedElements } from './utils/autoLayout';
+import { NodeType, AppNode, WorkflowTemplate } from './types/workflow';
 
 export default function App() {
   const {
@@ -29,6 +32,7 @@ export default function App() {
     updateNodeData,
     deleteNode,
     duplicateNode,
+    setWorkflowGraph,
     clearCanvas,
     undo,
     redo,
@@ -38,6 +42,8 @@ export default function App() {
 
   const [isValidationOpen, setIsValidationOpen] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isExportImportOpen, setIsExportImportOpen] = useState(false);
 
   // Compute live validation report
   const validationReport = useMemo(() => {
@@ -60,6 +66,50 @@ export default function App() {
     });
   }, [nodes, validationReport.nodeErrors, activeSimNodeId]);
 
+  // Dagre Auto-Layout handler
+  const handleAutoLayout = useCallback(
+    (direction: 'LR' | 'TB') => {
+      const layouted = getLayoutedElements(nodes, edges, direction);
+      setWorkflowGraph(layouted.nodes, layouted.edges);
+    },
+    [nodes, edges, setWorkflowGraph]
+  );
+
+  // Load Preset Template
+  const handleSelectTemplate = useCallback(
+    (tpl: WorkflowTemplate) => {
+      setWorkflowGraph(tpl.nodes, tpl.edges, tpl.title);
+    },
+    [setWorkflowGraph]
+  );
+
+  // Global Keyboard Shortcuts (Undo / Redo)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Check if target is an input or textarea
+      const target = e.target as HTMLElement;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
+        return;
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          if (canRedo) redo();
+        } else {
+          e.preventDefault();
+          if (canUndo) undo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key === 'y') {
+        e.preventDefault();
+        if (canRedo) redo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [undo, redo, canUndo, canRedo]);
+
   return (
     <AppLayout
       workflowTitle={workflowTitle}
@@ -68,11 +118,11 @@ export default function App() {
       canRedo={canRedo}
       onUndo={undo}
       onRedo={redo}
-      onAutoLayout={() => {}}
-      onOpenTemplates={() => {}}
+      onAutoLayout={handleAutoLayout}
+      onOpenTemplates={() => setIsTemplatesOpen(true)}
       onOpenValidation={() => setIsValidationOpen(true)}
       onOpenSimulation={() => setIsSandboxOpen(true)}
-      onOpenExportImport={() => {}}
+      onOpenExportImport={() => setIsExportImportOpen(true)}
       onClearCanvas={clearCanvas}
       validationErrors={validationReport.errors}
       onAddNode={(type: NodeType) => addNode(type)}
@@ -128,6 +178,23 @@ export default function App() {
         validationErrors={validationReport.errors}
         onHighlightNode={setActiveSimNodeId}
         onHighlightEdges={setTraversedEdgeIds}
+      />
+
+      {/* Pre-built Templates Browser Modal */}
+      <TemplatesModal
+        isOpen={isTemplatesOpen}
+        onClose={() => setIsTemplatesOpen(false)}
+        onSelectTemplate={handleSelectTemplate}
+      />
+
+      {/* Export / Import Modal */}
+      <ExportImportModal
+        isOpen={isExportImportOpen}
+        onClose={() => setIsExportImportOpen(false)}
+        nodes={nodes}
+        edges={edges}
+        workflowTitle={workflowTitle}
+        onImportGraph={setWorkflowGraph}
       />
     </AppLayout>
   );
