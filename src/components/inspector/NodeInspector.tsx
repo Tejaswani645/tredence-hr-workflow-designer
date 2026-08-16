@@ -21,9 +21,9 @@ import {
   EndNodeData,
   WorkflowNodeData,
 } from '../../types/workflow';
-import { StartConfigForm } from './forms/StartConfigForm';
-import { TaskConfigForm } from './forms/TaskConfigForm';
-import { ApprovalConfigForm } from './forms/ApprovalConfigForm';
+import { StartNodeForm } from './forms/StartNodeForm';
+import { TaskNodeForm } from './forms/TaskNodeForm';
+import { ApprovalNodeForm } from './forms/ApprovalNodeForm';
 import { AutomatedConfigForm } from './forms/AutomatedConfigForm';
 import { EndConfigForm } from './forms/EndConfigForm';
 
@@ -165,19 +165,19 @@ export const NodeInspector: React.FC<NodeInspectorProps> = ({
         {activeTab === 'config' ? (
           <div>
             {nodeType === 'start' && (
-              <StartConfigForm
+              <StartNodeForm
                 data={node.data as StartNodeData}
                 onChange={handleDataChange}
               />
             )}
             {nodeType === 'task' && (
-              <TaskConfigForm
+              <TaskNodeForm
                 data={node.data as TaskNodeData}
                 onChange={handleDataChange}
               />
             )}
             {nodeType === 'approval' && (
-              <ApprovalConfigForm
+              <ApprovalNodeForm
                 data={node.data as ApprovalNodeData}
                 onChange={handleDataChange}
               />
