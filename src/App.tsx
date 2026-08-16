@@ -1,34 +1,61 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { AppLayout } from './components/layout/AppLayout';
+import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
+import { useWorkflowStore } from './hooks/useWorkflowStore';
 import { NodeType, ValidationError } from './types/workflow';
 
 export default function App() {
-  const [workflowTitle, setWorkflowTitle] = useState('Employee Onboarding Workflow');
-  const [validationErrors] = useState<ValidationError[]>([]);
+  const {
+    nodes,
+    edges,
+    selectedNodeId,
+    workflowTitle,
+    setWorkflowTitle,
+    activeSimNodeId,
+    traversedEdgeIds,
+    setSelectedNodeId,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    addNode,
+    clearCanvas,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+  } = useWorkflowStore();
+
+  const validationErrors: ValidationError[] = [];
 
   return (
     <AppLayout
       workflowTitle={workflowTitle}
       onTitleChange={setWorkflowTitle}
-      canUndo={false}
-      canRedo={false}
-      onUndo={() => {}}
-      onRedo={() => {}}
+      canUndo={canUndo}
+      canRedo={canRedo}
+      onUndo={undo}
+      onRedo={redo}
       onAutoLayout={() => {}}
       onOpenTemplates={() => {}}
       onOpenValidation={() => {}}
       onOpenSimulation={() => {}}
       onOpenExportImport={() => {}}
-      onClearCanvas={() => {}}
+      onClearCanvas={clearCanvas}
       validationErrors={validationErrors}
-      onAddNode={(type: NodeType) => {
-        console.log('Add node:', type);
-      }}
+      onAddNode={(type: NodeType) => addNode(type)}
       isInspectorOpen={false}
     >
-      <div className="flex-1 flex items-center justify-center text-slate-500 text-sm">
-        Canvas Workspace Ready
-      </div>
+      <WorkflowCanvas
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onNodeSelect={setSelectedNodeId}
+        onDropNode={(type, pos) => addNode(type, pos)}
+        activeSimNodeId={activeSimNodeId}
+        traversedEdgeIds={traversedEdgeIds}
+      />
     </AppLayout>
   );
 }
