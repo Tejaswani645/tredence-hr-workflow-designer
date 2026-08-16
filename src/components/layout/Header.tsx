@@ -6,13 +6,14 @@ import {
   CheckCircle2,
   AlertTriangle,
   Download,
-  Upload,
   Layers,
   Sparkles,
   LayoutTemplate,
   Trash2,
-  SlidersHorizontal,
   ChevronDown,
+  BarChart3,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import { ValidationError } from '../../types/workflow';
 
@@ -31,6 +32,10 @@ interface HeaderProps {
   onClearCanvas: () => void;
   validationErrors: ValidationError[];
   isSimulating?: boolean;
+  isAnalyticsOpen?: boolean;
+  onToggleAnalytics?: () => void;
+  theme?: 'dark' | 'light';
+  onToggleTheme?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -48,6 +53,10 @@ export const Header: React.FC<HeaderProps> = ({
   onClearCanvas,
   validationErrors,
   isSimulating = false,
+  isAnalyticsOpen = false,
+  onToggleAnalytics,
+  theme = 'dark',
+  onToggleTheme,
 }) => {
   const errorCount = validationErrors.filter((e) => e.severity === 'error').length;
   const warningCount = validationErrors.filter((e) => e.severity === 'warning').length;
@@ -67,10 +76,10 @@ export const Header: React.FC<HeaderProps> = ({
                 type="text"
                 value={workflowTitle}
                 onChange={(e) => onTitleChange(e.target.value)}
-                className="bg-transparent text-sm font-semibold text-slate-100 hover:bg-slate-800/60 focus:bg-slate-800/90 focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 outline-none transition-colors border border-transparent hover:border-slate-700"
+                className="bg-transparent text-sm font-semibold text-slate-100 hover:bg-slate-800/60 focus:bg-slate-800/90 focus:ring-1 focus:ring-blue-500 rounded px-2 py-0.5 outline-none transition-colors border border-transparent hover:border-slate-700 max-w-[220px] sm:max-w-[280px]"
                 placeholder="Workflow Title..."
               />
-              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-800 text-slate-300 border border-slate-700 hidden sm:inline">
                 v1.2 Draft
               </span>
             </div>
@@ -82,7 +91,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Templates selector button */}
         <button
           onClick={onOpenTemplates}
-          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700 transition shadow-sm"
           title="Browse Pre-built HR Templates"
         >
           <LayoutTemplate className="w-3.5 h-3.5 text-blue-400" />
@@ -122,11 +131,11 @@ export const Header: React.FC<HeaderProps> = ({
             title="Auto Layout Horizontal (Left-to-Right)"
           >
             <Layers className="w-3.5 h-3.5 text-indigo-400" />
-            <span className="hidden md:inline">Auto-Layout (LR)</span>
+            <span className="hidden md:inline">Auto-Layout</span>
           </button>
           <button
             onClick={() => onAutoLayout('TB')}
-            className="p-1 rounded text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition border-l border-slate-700"
+            className="p-1 px-1.5 rounded text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-700 transition border-l border-slate-700"
             title="Auto Layout Vertical (Top-to-Bottom)"
           >
             TB
@@ -136,7 +145,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Validation Status Pill */}
         <button
           onClick={onOpenValidation}
-          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition ${
+          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition shadow-sm ${
             isValid
               ? 'bg-emerald-950/40 text-emerald-300 border-emerald-800/60 hover:bg-emerald-900/40'
               : 'bg-amber-950/40 text-amber-300 border-amber-800/60 hover:bg-amber-900/40'
@@ -169,13 +178,35 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Right Action Buttons */}
       <div className="flex items-center gap-2">
+        {/* Analytics Drawer Toggle */}
+        <button
+          onClick={onToggleAnalytics}
+          className={`p-1.5 rounded-lg border transition ${
+            isAnalyticsOpen
+              ? 'bg-indigo-950/70 border-indigo-700 text-indigo-300'
+              : 'bg-slate-800/80 hover:bg-slate-700 border-slate-700 text-slate-300'
+          }`}
+          title="Toggle Workflow Analytics & Insights"
+        >
+          <BarChart3 className="w-4 h-4" />
+        </button>
+
+        {/* Dark / Light Theme Toggle */}
+        <button
+          onClick={onToggleTheme}
+          className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white transition"
+          title={`Switch to ${theme === 'dark' ? 'Light' : 'Dark'} Mode`}
+        >
+          {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-blue-400" />}
+        </button>
+
         {/* Export / Import Button */}
         <button
           onClick={onOpenExportImport}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shadow-sm"
+          className="hidden sm:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition shadow-sm"
         >
           <Download className="w-3.5 h-3.5 text-slate-400" />
-          <span className="hidden sm:inline">Export / Import</span>
+          <span>Export / Import</span>
         </button>
 
         {/* Run Simulation / Sandbox Button */}

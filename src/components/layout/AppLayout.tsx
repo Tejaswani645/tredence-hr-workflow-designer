@@ -22,6 +22,10 @@ interface AppLayoutProps {
   children: React.ReactNode;
   inspectorPanel?: React.ReactNode;
   isInspectorOpen?: boolean;
+  isAnalyticsOpen?: boolean;
+  onToggleAnalytics?: () => void;
+  theme?: 'dark' | 'light';
+  onToggleTheme?: () => void;
 }
 
 export const AppLayout: React.FC<AppLayoutProps> = ({
@@ -43,9 +47,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
   children,
   inspectorPanel,
   isInspectorOpen = false,
+  isAnalyticsOpen = false,
+  onToggleAnalytics,
+  theme = 'dark',
+  onToggleTheme,
 }) => {
+  const showRightDrawer = isInspectorOpen || isAnalyticsOpen;
+
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans">
+    <div className={`h-screen w-screen flex flex-col bg-slate-950 text-slate-100 overflow-hidden font-sans ${theme === 'light' ? 'light' : ''}`}>
       {/* Top Header */}
       <Header
         workflowTitle={workflowTitle}
@@ -62,6 +72,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
         onClearCanvas={onClearCanvas}
         validationErrors={validationErrors}
         isSimulating={isSimulating}
+        isAnalyticsOpen={isAnalyticsOpen}
+        onToggleAnalytics={onToggleAnalytics}
+        theme={theme}
+        onToggleTheme={onToggleTheme}
       />
 
       {/* Main App Body */}
@@ -74,13 +88,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({
           {children}
         </main>
 
-        {/* Right Inspector Drawer Overlay */}
+        {/* Right Drawer (Node Inspector OR Analytics Drawer) */}
         <div
           className={`h-full border-l border-slate-800 bg-slate-900/95 backdrop-blur-xl z-20 transition-all duration-300 ease-in-out shadow-2xl flex flex-col ${
-            isInspectorOpen ? 'w-96 translate-x-0' : 'w-0 translate-x-full overflow-hidden border-none'
+            showRightDrawer ? 'w-96 translate-x-0' : 'w-0 translate-x-full overflow-hidden border-none'
           }`}
         >
-          {isInspectorOpen && inspectorPanel}
+          {showRightDrawer && inspectorPanel}
         </div>
       </div>
     </div>

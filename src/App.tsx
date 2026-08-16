@@ -2,6 +2,7 @@ import React, { useMemo, useState, useEffect, useCallback } from 'react';
 import { AppLayout } from './components/layout/AppLayout';
 import { WorkflowCanvas } from './components/canvas/WorkflowCanvas';
 import { NodeInspector } from './components/inspector/NodeInspector';
+import { WorkflowAnalyticsDrawer } from './components/analytics/WorkflowAnalyticsDrawer';
 import { ValidationModal } from './components/validation/ValidationModal';
 import { SandboxModal } from './components/sandbox/SandboxModal';
 import { TemplatesModal } from './components/templates/TemplatesModal';
@@ -40,6 +41,8 @@ export default function App() {
     canRedo,
   } = useWorkflowStore();
 
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
   const [isValidationOpen, setIsValidationOpen] = useState(false);
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
@@ -86,7 +89,6 @@ export default function App() {
   // Global Keyboard Shortcuts (Undo / Redo)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Check if target is an input or textarea
       const target = e.target as HTMLElement;
       if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable)) {
         return;
@@ -110,6 +112,10 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [undo, redo, canUndo, canRedo]);
 
+  const toggleTheme = () => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   return (
     <AppLayout
       workflowTitle={workflowTitle}
@@ -127,15 +133,27 @@ export default function App() {
       validationErrors={validationReport.errors}
       onAddNode={(type: NodeType) => addNode(type)}
       isInspectorOpen={Boolean(selectedNode)}
+      isAnalyticsOpen={isAnalyticsOpen && !selectedNode}
+      onToggleAnalytics={() => setIsAnalyticsOpen((prev) => !prev)}
+      theme={theme}
+      onToggleTheme={toggleTheme}
       isSimulating={isSandboxOpen || Boolean(activeSimNodeId)}
       inspectorPanel={
-        <NodeInspector
-          node={selectedNode}
-          onUpdate={updateNodeData}
-          onClose={() => setSelectedNodeId(null)}
-          onDuplicate={duplicateNode}
-          onDelete={deleteNode}
-        />
+        selectedNode ? (
+          <NodeInspector
+            node={selectedNode}
+            onUpdate={updateNodeData}
+            onClose={() => setSelectedNodeId(null)}
+            onDuplicate={duplicateNode}
+            onDelete={deleteNode}
+          />
+        ) : (
+          <WorkflowAnalyticsDrawer
+            nodes={nodes}
+            edges={edges}
+            validationErrors={validationReport.errors}
+          />
+        )
       }
     >
       <WorkflowCanvas
